@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+
+  web_server:
+    container_name: web_server
+    build: ./web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+    links:
+      - db_server
+    depends_on:
+      - db_server
+    
+  
+  db_server:
+    container_name: db_server
+    platform: linux/x86_64
+    build: ./db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pswd
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_pswd
+      TZ: 'Asia/Tokyo'
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/mysql:/var/lib/mysql
+
+  phpmyadmin:
+    container_name: phpadmin
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - db_server
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS='db_server'
+    ports:
+      - "80:80"
+    volumes:
+      - ./phpmyadmin/sessions:/sessions
+    
+
